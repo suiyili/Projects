@@ -9,8 +9,9 @@ public:
   void forward(const rnn_vector<hidden_dim_t_> &prev);
   const rnn_vector<hidden_dim_t_> &get_output() const;
   rnn_vector<hidden_dim_t_> backward(const rnn_vector<hidden_dim_t_> &prev);
+  void learn(real rate = 1.0);
   void set_cell(gru_cell <hidden_dim_t_> &cell);
-  void set_bias(const rnn_vector<hidden_dim_t_> &bias);
+  void add_bias(const rnn_vector<hidden_dim_t_> &bias);
 private:
   gru_cell <hidden_dim_t_> *cell_ = nullptr;
   gru_state <hidden_dim_t_> output_;

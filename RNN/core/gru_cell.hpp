@@ -46,7 +46,8 @@ inline gru_state<hidden_dim_t_> gru_cell<hidden_dim_t_>::forward(
 }
 
 template<std::size_t hidden_dim_t_>
-inline rnn_vector<hidden_dim_t_> gru_cell<hidden_dim_t_>::backward(const rnn_vector<hidden_dim_t_> &prev, const gru_state_t &cur) {
+inline rnn_vector<hidden_dim_t_> gru_cell<hidden_dim_t_>::backward(const rnn_vector<hidden_dim_t_> &prev,
+                                                                   const gru_state_t &cur) {
 
   rnn_vector<hidden_dim_t_> delz = logistic_prime(cur.z_).array() * cur.delh_.array() * (cur.u_ - prev).array();
   rnn_vector<hidden_dim_t_> delu = tanh_prime(cur.u_).array() * cur.delh_.array() * cur.z_.array();
@@ -55,14 +56,19 @@ inline rnn_vector<hidden_dim_t_> gru_cell<hidden_dim_t_>::backward(const rnn_vec
 
   rnn_vector<hidden_dim_t_> del_h = wr_.transpose() * delr + wz_.transpose() * delz;
   del_h.array() += delrh.array() * cur.r_.array() + cur.delh_.array() * (1.0 - cur.z_.array());
-
+  /*
+  wr_.noalias() += learning_rate_ * (delr * prev.transpose());
+  wz_.noalias() += learning_rate_ * (delz * prev.transpose());
+  wu_.noalias() += learning_rate_ * (delu * cur.rh_.transpose());*/
   wr_grad_.noalias() += delr * prev.transpose();
   wz_grad_.noalias() += delz * prev.transpose();
   wu_grad_.noalias() += delu * cur.rh_.transpose();
 
-  br_grad_ += delr;
-  bz_grad_ += delz;
-  bu_grad_ += delu;
+  br_grad_.noalias() += delr;
+  bz_grad_.noalias() += delz;
+  bu_grad_.noalias() += delu;
+
+  ++count_;
 
   return del_h;
 }
@@ -70,14 +76,28 @@ inline rnn_vector<hidden_dim_t_> gru_cell<hidden_dim_t_>::backward(const rnn_vec
 template<std::size_t hidden_dim_t_>
 inline void gru_cell<hidden_dim_t_>::learn(const real rate) {
 
-  wr_ -= rate * wr_grad_;
-  br_ -= rate * br_grad_;
+  if(!count_) return;
 
-  wz_ -= rate * wz_grad_;
-  bz_ -= rate * bz_grad_;
+  auto r = rate / count_;
 
-  wu_ -= rate * wu_grad_;
-  bu_ -= rate * bu_grad_;
+  wr_.noalias() -= r * wr_grad_;
+  br_.noalias() -= r * br_grad_;
+
+  wz_.noalias() -= r * wz_grad_;
+  bz_.noalias() -= r * bz_grad_;
+
+  wu_.noalias() -= r * wu_grad_;
+  bu_.noalias() -= r * bu_grad_;
+
+  wr_grad_.noalias() = decltype(wr_grad_)::Zero();
+  br_grad_.noalias() = decltype(br_grad_)::Zero();
+  wz_grad_.noalias() = decltype(wz_grad_)::Zero();
+  bz_grad_.noalias() = decltype(bz_grad_)::Zero();
+  wu_grad_.noalias() = decltype(wu_grad_)::Zero();
+  bu_grad_.noalias() = decltype(bu_grad_)::Zero();
+
+  count_ = 0U;
+
 }
 
 template<std::size_t dim_t_>
@@ -167,7 +187,7 @@ inline void gru_cell<hidden_dim_t_>::load(std::ifstream &ifs, gru_cell::gru_matr
 
 template<std::size_t hidden_dim_t_>
 inline void gru_cell<hidden_dim_t_>::load(std::ifstream &ifs,
-                                   typename gru_cell<hidden_dim_t_>::gru_state_t::gru_vector &v) {
+                                          typename gru_cell<hidden_dim_t_>::gru_state_t::gru_vector &v) {
   real val = 0.0;
 
   for (int i = 0; i < v.rows(); ++i) {

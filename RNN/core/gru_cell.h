@@ -8,7 +8,7 @@ template<std::size_t hidden_dim_t_>
 class gru_cell final {
 public:
   using gru_state_t = gru_state<hidden_dim_t_>;
-  explicit gru_cell(real scale = 1.0);
+  explicit gru_cell(real scale = 1.f);
 
   gru_state_t forward(const rnn_vector<hidden_dim_t_> &prev);
 
@@ -38,6 +38,8 @@ private:
 
   gru_matrix wr_, wz_, wu_, wr_grad_, wz_grad_, wu_grad_;
   typename gru_state_t::gru_vector br_, bz_, bu_, br_grad_, bz_grad_, bu_grad_;
+  std::size_t count_ = 0U;
+  real learning_rate_ = 1.0f;
 };
 
 }

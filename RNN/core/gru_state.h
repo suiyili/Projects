@@ -8,7 +8,7 @@ template<std::size_t hidden_dim_t_>
 class gru_state final {
 public:
   using gru_vector = rnn_vector<hidden_dim_t_>;
-  gru_state() noexcept = default;
+  gru_state() noexcept;
   gru_state(const gru_state& other) noexcept;
   gru_state(gru_state&& other) noexcept ;
 

@@ -6,6 +6,13 @@
 namespace rnn::core {
 
 template<std::size_t hidden_dim_t_>
+inline gru_state<hidden_dim_t_>::gru_state() noexcept
+:h_(decltype(h_)::Zero()), u_(decltype(u_)::Zero()),
+r_(decltype(r_)::Zero()), z_(decltype(z_)::Zero()),
+rh_(decltype(rh_)::Zero()), delh_(decltype(delh_)::Zero()){
+}
+
+template<std::size_t hidden_dim_t_>
 inline gru_state<hidden_dim_t_>::gru_state(const gru_state &other) noexcept
 : h_(other.h_), u_(other.u_), r_(other.r_), z_(other.z_),
 rh_(other.rh_), delh_(other.delh_) {
