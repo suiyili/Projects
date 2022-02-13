@@ -30,11 +30,6 @@ inline void gru_transition<hidden_dim_t_>::set_cell(gru_cell<hidden_dim_t_> &cel
   cell_ = &cell;
 }
 
-template<std::size_t hidden_dim_t_>
-inline void gru_transition<hidden_dim_t_>::learn(real rate) {
-  cell_->learn(rate);
-}
-
 }
 
 #endif //RNN_CORE_GRU_TRANSITION_HPP

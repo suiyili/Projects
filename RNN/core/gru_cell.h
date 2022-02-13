@@ -8,13 +8,13 @@ template<std::size_t hidden_dim_t_>
 class gru_cell final {
 public:
   using gru_state_t = gru_state<hidden_dim_t_>;
-  explicit gru_cell(real scale = 1.f);
+  gru_cell();
 
   gru_state_t forward(const rnn_vector<hidden_dim_t_> &prev);
 
   rnn_vector<hidden_dim_t_> backward(const rnn_vector<hidden_dim_t_> &prev, const gru_state_t &cur);
 
-  void learn(real rate);
+  void set_learning(real rate);
 
   template<std::size_t dim_t_>
   friend std::ofstream &operator<<(std::ofstream &ofs, const gru_cell<dim_t_> &cell);
@@ -36,10 +36,9 @@ private:
   static void load(std::ifstream &ifs, gru_matrix &m);
   static void load(std::ifstream &ifs, typename gru_state_t::gru_vector &v);
 
-  gru_matrix wr_, wz_, wu_, wr_grad_, wz_grad_, wu_grad_;
-  typename gru_state_t::gru_vector br_, bz_, bu_, br_grad_, bz_grad_, bu_grad_;
-  std::size_t count_ = 0U;
-  real learning_rate_ = 1.0f;
+  gru_matrix wr_, wz_, wu_;
+  typename gru_state_t::gru_vector br_, bz_, bu_;
+  real learning_rate_ = 1.f;
 };
 
 }

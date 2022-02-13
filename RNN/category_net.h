@@ -12,10 +12,9 @@ namespace rnn {
 template<std::size_t word_capacity_t_, std::size_t hidden_dim_t_, std::size_t cat_dim_t_>
 class category_net final{
 public:
-  category_net();
+  explicit category_net(real learning_rate = 1.0f);
   void train(const std::vector<size_t>& input, size_t label);
   size_t predict(const std::vector<size_t>& input);
-  void learn(real rate = 1.0f);
 private:
   rnn_vector<cat_dim_t_> estimate(const std::vector<size_t>& input);
   typename gru_state<hidden_dim_t_>::gru_vector const init_h_;

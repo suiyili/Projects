@@ -6,25 +6,14 @@
 namespace rnn::core {
 
 template<std::size_t hidden_dim_t_>
-inline gru_cell<hidden_dim_t_>::gru_cell(real scale)
+inline gru_cell<hidden_dim_t_>::gru_cell()
     : wr_(gru_matrix::Random()),
       wz_(gru_matrix::Random()),
       wu_(gru_matrix::Random()),
-      wr_grad_(gru_matrix::Zero()),
-      wz_grad_(gru_matrix::Zero()),
-      wu_grad_(gru_matrix::Zero()),
-      br_(gru_state_t::gru_vector::Random()),
-      bz_(gru_state_t::gru_vector::Random()),
-      bu_(gru_state_t::gru_vector::Random()),
-      br_grad_(gru_state_t::gru_vector::Zero()),
-      bz_grad_(gru_state_t::gru_vector::Zero()),
-      bu_grad_(gru_state_t::gru_vector::Zero()) {
-  wr_ *= scale;
-  wz_ *= scale;
-  wu_ *= scale;
-  br_ *= scale;
-  bz_ *= scale;
-  bu_ *= scale;
+      br_(gru_state_t::gru_vector::Zero()),
+      bz_(gru_state_t::gru_vector::Zero()),
+      bu_(gru_state_t::gru_vector::Zero()) {
+
 }
 
 template<std::size_t hidden_dim_t_>
@@ -46,6 +35,11 @@ inline gru_state<hidden_dim_t_> gru_cell<hidden_dim_t_>::forward(
 }
 
 template<std::size_t hidden_dim_t_>
+inline void gru_cell<hidden_dim_t_>::set_learning(real rate) {
+  learning_rate_ = rate;
+}
+
+template<std::size_t hidden_dim_t_>
 inline rnn_vector<hidden_dim_t_> gru_cell<hidden_dim_t_>::backward(const rnn_vector<hidden_dim_t_> &prev,
                                                                    const gru_state_t &cur) {
 
@@ -56,48 +50,20 @@ inline rnn_vector<hidden_dim_t_> gru_cell<hidden_dim_t_>::backward(const rnn_vec
 
   rnn_vector<hidden_dim_t_> del_h = wr_.transpose() * delr + wz_.transpose() * delz;
   del_h.array() += delrh.array() * cur.r_.array() + cur.delh_.array() * (1.0 - cur.z_.array());
-  /*
-  wr_.noalias() += learning_rate_ * (delr * prev.transpose());
-  wz_.noalias() += learning_rate_ * (delz * prev.transpose());
-  wu_.noalias() += learning_rate_ * (delu * cur.rh_.transpose());*/
-  wr_grad_.noalias() += delr * prev.transpose();
-  wz_grad_.noalias() += delz * prev.transpose();
-  wu_grad_.noalias() += delu * cur.rh_.transpose();
 
-  br_grad_.noalias() += delr;
-  bz_grad_.noalias() += delz;
-  bu_grad_.noalias() += delu;
+  delr *= learning_rate_;
+  delz *= learning_rate_;
+  delu *= learning_rate_;
 
-  ++count_;
+  wr_.noalias() -= delr * prev.transpose();
+  wz_.noalias() -= delz * prev.transpose();
+  wu_.noalias() -= delu * cur.rh_.transpose();
+
+  br_.noalias() -= delr;
+  bz_.noalias() -= delz;
+  bu_.noalias() -= delu;
 
   return del_h;
-}
-
-template<std::size_t hidden_dim_t_>
-inline void gru_cell<hidden_dim_t_>::learn(const real rate) {
-
-  if(!count_) return;
-
-  auto r = rate / count_;
-
-  wr_.noalias() -= r * wr_grad_;
-  br_.noalias() -= r * br_grad_;
-
-  wz_.noalias() -= r * wz_grad_;
-  bz_.noalias() -= r * bz_grad_;
-
-  wu_.noalias() -= r * wu_grad_;
-  bu_.noalias() -= r * bu_grad_;
-
-  wr_grad_.noalias() = decltype(wr_grad_)::Zero();
-  br_grad_.noalias() = decltype(br_grad_)::Zero();
-  wz_grad_.noalias() = decltype(wz_grad_)::Zero();
-  bz_grad_.noalias() = decltype(bz_grad_)::Zero();
-  wu_grad_.noalias() = decltype(wu_grad_)::Zero();
-  bu_grad_.noalias() = decltype(bu_grad_)::Zero();
-
-  count_ = 0U;
-
 }
 
 template<std::size_t dim_t_>

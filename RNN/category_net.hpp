@@ -7,9 +7,12 @@
 namespace rnn {
 
 template<std::size_t word_capacity_t_, std::size_t hidden_dim_t_, std::size_t cat_dim_t_>
-inline category_net<word_capacity_t_, hidden_dim_t_, cat_dim_t_>::category_net()
-    : init_h_(gru_state<hidden_dim_t_>::gru_vector::Ones()),
-      output_(1.f) {
+inline category_net<word_capacity_t_, hidden_dim_t_, cat_dim_t_>::category_net(real learning_rate)
+    : init_h_(gru_state<hidden_dim_t_>::gru_vector::Ones()) {
+
+      output_.set_learning(learning_rate);
+      for(auto& w : words_)
+        w.set_learning(learning_rate);
 }
 
 template<std::size_t word_capacity_t_, std::size_t hidden_dim_t_, std::size_t cat_dim_t_>
@@ -52,13 +55,6 @@ rnn_vector<cat_dim_t_> category_net<word_capacity_t_, hidden_dim_t_, cat_dim_t_>
     last_ = std::next(last_);
   }
   return output_.predict(*prev_h);
-}
-
-template<std::size_t word_capacity_t_, std::size_t hidden_dim_t_, std::size_t cat_dim_t_>
-inline void category_net<word_capacity_t_, hidden_dim_t_, cat_dim_t_>::learn(real rate) {
-  for (auto &w : words_)
-    w.learn(rate);
-  output_.learn(rate);
 }
 
 }
