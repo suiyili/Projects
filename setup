@@ -3,7 +3,8 @@ install msys, then msys cmd
 $>pacman -S mingw-w64-x86_64-gcc
 $>pacman -S mingw-w64-x86_64-gdb
 $>pacman -S git
-$>pacman -Syu (upgrade)
+$>pacman -Syuu (upgrade to latest version)
+$>pacman -Q (show pacakge info)
 add [path\to\msys64\mingw64\bin]\ to env PATH
 add [path\to\msys64\user\bin]\ to env PATH
 
