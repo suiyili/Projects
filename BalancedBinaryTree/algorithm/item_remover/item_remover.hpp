@@ -49,7 +49,7 @@ item_remover<key_t_>::find_removing_branch(rb_item<key_t_> *&root) {
 
   while (branch_stack.top()) {
     auto& top = *branch_stack.top();
-    const key_t_& top_key = top;
+    auto& top_key = (const key_t_&)top;
     if (to_remove_ < top_key)
       branch_stack.emplace(top.get_child(side::left));
     else if (top_key < to_remove_)
@@ -71,7 +71,7 @@ inline void item_remover<key_t_>::append_right_min(branch_t<key_t_> &branch) {
       branch.emplace(*next);
       next = &(*next)->get_child(side::left);
     }
-    key_t_ &k = *to_remove;
+    auto& k =(key_t_ &) *to_remove;
     k = (key_t_&)*branch.top();
   }
 }

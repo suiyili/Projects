@@ -1,5 +1,5 @@
 cmake_minimum_required()
-project(RedBlackTree)
+project(BalancedBinaryTree)
 
 include(../base.cmake)
 
@@ -12,8 +12,8 @@ set(SRC algorithm/consecutive_red_regulator/consecutive_red_regulator_test.cpp
         generic/resource_manager/resource_manager.cpp
         )
 
-add_executable(RedBlackTree ${SRC})
-target(RedBlackTree)
+add_executable(BalancedBinaryTree ${SRC})
+target(BalancedBinaryTree)
 
 
 

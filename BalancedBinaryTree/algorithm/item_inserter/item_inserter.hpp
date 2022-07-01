@@ -33,12 +33,12 @@ template<comparable_key key_t_>
 inline branch_t<key_t_> item_inserter<key_t_>::insert_to_branch(rb_item<key_t_> *&root) {
   branch_t<key_t_> branch_stack;
 
-  const key_t_& key = *to_insert_;
+  auto& key = (const key_t_&)*to_insert_;
   branch_stack.push(root);
 
   while (branch_stack.top()) {
     auto& top = *branch_stack.top();
-    const key_t_& top_key = top;
+    auto& top_key = (const key_t_&)top;
     if (key < top_key)
       branch_stack.emplace(top.get_child(side::left));
     else if (top_key < key)

@@ -18,7 +18,7 @@ template <comparable_key key_t_>
 inline bool rb_tree<key_t_>::contains(const key_t_ &key) {
   auto cur = root_;
   while (cur != nullptr) {
-    const key_t_& cur_key = *cur;
+    auto & cur_key = (const key_t_&)*cur;
     if (key < cur_key)
       cur = cur->get_child(side::left);
     else if (cur_key < key)
